@@ -1,0 +1,238 @@
+
+START PROGRAM "Platform Jumper"
+
+---------------------------------------------------------
+SECTION 1: LOAD ASSETS & INITIAL SETUP
+---------------------------------------------------------
+
+LOAD image player.png → PLAYER_IMAGE
+LOAD image tnt.png → TNT_IMAGE
+
+DEFINE CONSTANT GROUND_LEVEL = 355
+DEFINE CONSTANT MAX_JUMPS = 2
+
+INITIALIZE:
+    stars = empty list
+    obstacles = empty list
+    score = 0
+    obstacleTimer = 0
+    rotation = 0
+    isGameOverAnimation = false
+
+READ highscores from localStorage:
+    If none found:
+        highscores = { easy:0, medium:0, hard:0 }
+
+DEFINE player object:
+    x = 70
+    y = 300
+    width = 60
+    height = 55
+    dy = 0
+    gravity = 1
+    jumpForce = 15
+    jumpsLeft = MAX_JUMPS
+
+HIDE game canvas
+HIDE game over screen
+SHOW start screen
+
+---------------------------------------------------------
+SECTION 2: UI INTERACTION (START SCREEN)
+---------------------------------------------------------
+
+When user selects a MODE button:
+    mark chosen button as active
+    store selected mode (easy, medium, hard)
+
+When START button is clicked:
+    CALL applyModeSettings()
+    CALL startCountdown()
+
+FUNCTION applyModeSettings():
+    IF mode = easy:
+        gameSpeed = 3
+        spawnRate = 110
+    ELSE IF mode = medium:
+        gameSpeed = 5
+        spawnRate = 70
+    ELSE IF mode = hard:
+        gameSpeed = 7
+        spawnRate = 45
+
+---------------------------------------------------------
+SECTION 3: COUNTDOWN 3–2–1–GO
+---------------------------------------------------------
+
+FUNCTION startCountdown():
+    count = 3
+    DISPLAY count on start screen
+
+    EVERY 900ms:
+        decrease count by 1
+
+        IF count > 0:
+            DISPLAY count (3, 2, 1)
+        
+        ELSE IF count = 0:
+            DISPLAY "GO!"
+
+        ELSE:
+            HIDE countdown
+            CALL startGame()
+            STOP countdown timer
+
+---------------------------------------------------------
+SECTION 4: STARTING THE GAME
+---------------------------------------------------------
+
+FUNCTION startGame():
+    HIDE start screen
+    SHOW canvas
+    HIDE game over screen
+    CALL initStars()
+    CALL resetGame()
+    START main game loop every 30ms → update()
+
+FUNCTION resetGame():
+    reset player position and dy
+    player.jumpsLeft = MAX_JUMPS
+    obstacles = empty list
+    score = 0
+    rotation = 0
+    isGameOverAnimation = false
+
+FUNCTION initStars():
+    FOR 70 times:
+        CREATE star with:
+            random x, random y, random size, random speed
+        ADD star to stars[]
+
+---------------------------------------------------------
+SECTION 5: INPUT HANDLING (DOUBLE JUMP)
+---------------------------------------------------------
+
+ON key press SPACE:
+    IF player.jumpsLeft > 0 AND not isGameOverAnimation:
+        PLAY jump sound
+        player.dy = -player.jumpForce
+        player.jumpsLeft -= 1
+
+---------------------------------------------------------
+SECTION 6: GAME LOOP (CALLED EVERY 30ms)
+---------------------------------------------------------
+
+FUNCTION update():
+    CLEAR canvas
+
+    DRAW moving stars background
+    DRAW ground
+
+    APPLY gravity:
+        player.dy += player.gravity
+        player.y += player.dy
+
+    IF player touches ground:
+        player.y = GROUND_LEVEL - player.height
+        player.jumpsLeft = MAX_JUMPS
+
+    IF game over animation is active:
+        player.dy increases faster
+        rotation increases
+        draw player rotated
+    ELSE:
+        draw player normally
+
+    HANDLE obstacles:
+        increase obstacleTimer
+        IF obstacleTimer > spawnRate:
+            CALL spawnObstacle()
+            reset obstacleTimer
+
+        MOVE each obstacle left
+        DRAW each obstacle (single TNT or tall TNT)
+
+        IF obstacle goes off screen:
+            remove obstacle
+            PLAY dodge sound
+
+        IF collision detected between player and obstacle:
+            CALL handleGameOver()
+            EXIT update()
+
+    INCREASE score
+    DISPLAY score
+    DISPLAY highscore “HI 00000”
+
+---------------------------------------------------------
+SECTION 7: SPAWNING OBSTACLES
+---------------------------------------------------------
+
+FUNCTION spawnObstacle():
+    IF random chance < 20%:
+        CREATE tall obstacle:
+            two TNT blocks at different heights
+            obstacle.tall = true
+    ELSE:
+        CREATE normal TNT obstacle
+        obstacle.tall = false
+
+    ADD obstacle to obstacles[]
+
+---------------------------------------------------------
+SECTION 8: COLLISION DETECTION
+---------------------------------------------------------
+
+FUNCTION checkCollision(player, obstacle):
+
+    IF obstacle is tall:
+        FOR each TNT block:
+            IF bounding boxes overlap:
+                RETURN true
+
+    ELSE:
+        IF bounding boxes overlap:
+            RETURN true
+
+    RETURN false
+
+---------------------------------------------------------
+SECTION 9: GAME OVER
+---------------------------------------------------------
+
+FUNCTION handleGameOver():
+    STOP game loop timer
+    PLAY explosion sound
+    PLAY screen flash effect
+
+    ACTIVATE fall animation:
+        isGameOverAnimation = true
+        player.dy = -6
+        rotation = 0
+
+    AFTER 900ms:
+        CALL finalizeGameOver()
+
+FUNCTION finalizeGameOver():
+    UPDATE highscore if score > old highscore
+    SAVE highscores to localStorage
+
+    HIDE canvas
+    SHOW game over screen:
+        Display final score
+        Display best score for that mode
+        Display highscores for all modes
+
+---------------------------------------------------------
+SECTION 10: RESTART
+---------------------------------------------------------
+
+When PLAY AGAIN is clicked:
+    RELOAD the page
+    SHOW start screen again
+
+---------------------------------------------------------
+SECTION 11: END OF PROGRAM
+---------------------------------------------------------
+
+END PROGRAM

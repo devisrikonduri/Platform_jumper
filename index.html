@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Platform Jumper — Night Edition</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <header>
+    <h1 id="gameTitle">🌙 Platform Jumper</h1>
+  </header>
+
+  <main>
+    <section id="startScreen" class="panel bigPanel" aria-label="Start Screen">
+      <h2 class="bigText">Platform Jumper</h2>
+      <p class="subText">Choose a difficulty & press Start</p>
+      <div class="modes" role="tablist" aria-label="Difficulty modes">
+        <button class="modeBtn" data-mode="easy">Easy</button>
+        <button class="modeBtn active" data-mode="medium">Medium</button>
+        <button class="modeBtn" data-mode="hard">Hard</button>
+      </div>
+      <div id="countdown" class="countdown" aria-hidden="true"></div>
+      <button id="startBtn" class="primary bigBtn" aria-label="Start Game">Start Game</button>
+      <p class="hint">Controls: Press <strong>Space</strong> to jump. Double-jump allowed.</p>
+    </section>
+
+    <canvas id="gameCanvas" width="800" height="400" aria-label="Game canvas"></canvas>
+
+    <section id="gameOverScreen" class="panel bigPanel" aria-hidden="true" style="display:none;">
+      <h2 class="goHeading bigText">GAME OVER</h2>
+      <p id="finalScore" class="subText"></p>
+      <p id="bestScore" class="subText"></p>
+      <div id="scoresDisplay" class="modes"></div>
+      <button id="restartBtn" class="primary bigBtn">Play Again</button>
+    </section>
+  </main>
+
+  <footer>
+    <p class="small">Built with HTML • CSS • JavaScript — Night Theme</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
