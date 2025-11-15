@@ -186,3 +186,5 @@ Used z-index and show/hide logic.
 4. Countdown Timing
 
 Added delay using setInterval() before game loop starts.
+u can view this game in live server with htis link
+ https://devisrikonduri.github.io/Platform_jumper/
