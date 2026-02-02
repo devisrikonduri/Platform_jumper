@@ -9,6 +9,7 @@ header{margin-top:6px}
 .panel{background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);padding:28px;border-radius:16px;width:520px;max-width:96%;text-align:center;box-shadow:0 12px 40px rgba(20,24,60,0.6);margin-top:60px}
 .bigPanel{transform:scale(1.03);transition:transform .18s}
 .bigPanel:hover{transform:scale(1.05)}
+/*practicing to chnage the css*/
 
 /* Titles */
 .bigText{font-size:48px;margin-bottom:6px;letter-spacing:1px;text-shadow:0 0 12px #ffffff22}
